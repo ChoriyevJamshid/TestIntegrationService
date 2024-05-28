@@ -7,16 +7,29 @@ from .serializers import EmployeeSerializer
 
 class GetEmployeesView(generics.GenericAPIView):
     serializer_class = EmployeeSerializer
-    url = "https://google.com/"
+    url = "http://176.192.70.122:90/fitnes_t_nfc_mobile/hs/nfc_mobile/v1/"
+    username = "FitnessKit"
+    password = "vY0xodyg"
+    auth = aiohttp.BasicAuth(login=username, password=password)
+
+    body = {
+        "Request_id": "e1477272-88d1-4acc-8e03-7008cdedc81e",
+        "ClubId": "59115d1e-9052-11eb-810c-6eae8b56243b",
+        "Method": "GetSpecialistList",
+        "Parameters": {
+            "ServiceId": ""
+        }
+    }
 
     async def get(self, request, *args, **kwargs):
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(self.url) as response:
+        async with aiohttp.ClientSession() as session:
+
+            async with session.post(url=self.url, json=self.body, auth=self.auth) as response:
+                if response.status == 200:
                     response_data = response.json()
                     print(response_data)
-        except Exception as e:
-            return Response(f"ERROR: {e}")
+                else:
+                    return Response(f"ERROR: {response.status}")
 
         emps_data = list()
         for data in response_data:
